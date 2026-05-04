@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Technician — zigbee.com.au</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#C8DCF0;--bg-card:#FFFFFF;--bg-card2:#EBF3FA;--bg-card3:#F0F6FB;
+  --electric:#0077CC;--el-light:rgba(0,119,204,0.10);--el-mid:rgba(0,119,204,0.18);
+  --hub:#E8003D;--router:#5A8A6A;--device:#5A7FA8;
+  --yes-bg:#EAF7EE;--yes-b:#5A9A6A;--yes-t:#1A5A2A;
+  --warn-bg:#FFF8E8;--warn-b:#D4960A;--warn-t:#6A4800;
+  --red-bg:#FDEEF2;--red-b:#E8003D;--red-t:#7A0020;
+  --info-bg:#EBF3FA;--info-b:rgba(0,119,204,0.3);--info-t:#3A4A60;
+  --quick:#2A7A3A;--quick-bg:#E8F6ED;--quick-b:#5A9A6A;
+  --tech:#0055AA;--tech-bg:#E8F0FA;--tech-b:#5A80BB;
+  --hw:#7A4000;--hw-bg:#FFF0E0;--hw-b:#D48030;
+  --bydesign:#4A4A6A;--bydesign-bg:#F0F0F8;--bydesign-b:#9A9ABB;
+  --text-dark:#141E30;--text-mid:#3A4A60;--text-light:#6A7A90;
+  --border:#C0D0E0;--shadow:rgba(20,40,80,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-dark);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,119,204,0.07) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+
+.wrapper{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:30px 16px 52px;}
+
+/* HEADER */
+.hdr{text-align:center;margin-bottom:24px;animation:fadeDown .6s ease both;}
+.brand{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--electric);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.brand::before,.brand::after{content:'';width:28px;height:1px;background:var(--electric);opacity:.4;}
+.ttl{font-family:'Syne',sans-serif;font-size:clamp(24px,4.5vw,38px);font-weight:800;line-height:1.1;color:var(--text-dark);margin-bottom:8px;}
+.ttl span{color:var(--electric);}
+.sub{font-size:15.5px;color:var(--text-mid);max-width:520px;margin:0 auto;line-height:1.55;}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:20px;animation:fadeDown .6s .1s ease both;}
+.prog-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.prog-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-light);}
+.prog-count{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--electric);}
+.prog-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--electric),#00BBDD);border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* CARD */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:28px 30px 24px;box-shadow:0 4px 24px var(--shadow);animation:slideUp .4s cubic-bezier(.4,0,.2,1) both;}
+.eyebrow{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--electric);margin-bottom:8px;}
+.question{font-family:'Syne',sans-serif;font-size:clamp(17px,2.8vw,22px);font-weight:700;color:var(--text-dark);margin-bottom:6px;line-height:1.3;}
+.q-hint{font-size:14px;color:var(--text-light);margin-bottom:20px;line-height:1.5;}
+
+/* OPTIONS */
+.opts{display:grid;gap:10px;}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;background:var(--bg-card2);border:1.5px solid var(--border);border-radius:11px;cursor:pointer;transition:all .18s;text-align:left;font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:500;color:var(--text-dark);line-height:1.35;width:100%;}
+.opt:hover{border-color:var(--electric);background:var(--el-light);transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,119,204,.12);}
+.opt-em{font-size:20px;flex-shrink:0;margin-top:1px;}
+.opt-txt{flex:1;}
+.opt-sub{font-size:12.5px;color:var(--text-light);display:block;margin-top:2px;font-weight:400;}
+
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:22px;}
+.btn-back{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text-light);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;transition:color .18s;padding:8px 0;}
+.btn-back:hover{color:var(--text-dark);}
+
+/* SYMPTOM GRID */
+.sym-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(max-width:500px){.sym-grid{grid-template-columns:1fr;}}
+.sym-btn{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:16px 16px;background:var(--bg-card2);border:1.5px solid var(--border);border-radius:13px;cursor:pointer;transition:all .18s;text-align:left;font-family:'DM Sans',sans-serif;}
+.sym-btn:hover{border-color:var(--electric);background:var(--el-light);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,119,204,.14);}
+.sym-em{font-size:26px;margin-bottom:2px;}
+.sym-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text-dark);}
+.sym-desc{font-size:12.5px;color:var(--text-light);line-height:1.4;}
+
+/* RESULT */
+.result-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:28px 30px 24px;box-shadow:0 4px 24px var(--shadow);animation:popIn .45s cubic-bezier(.4,0,.2,1) both;}
+.diag-header{margin-bottom:18px;}
+.diag-found{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--electric);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.diag-found::before{content:'🔍';}
+.diag-name{font-family:'Syne',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:var(--text-dark);line-height:1.15;margin-bottom:8px;}
+.diag-name span{color:var(--electric);}
+
+/* DIFFICULTY BADGE */
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:100px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;margin-bottom:18px;border:1.5px solid;}
+.badge.quick{background:var(--quick-bg);border-color:var(--quick-b);color:var(--quick);}
+.badge.tech{background:var(--tech-bg);border-color:var(--tech-b);color:var(--tech);}
+.badge.hw{background:var(--hw-bg);border-color:var(--hw-b);color:var(--hw);}
+.badge.bydesign{background:var(--bydesign-bg);border-color:var(--bydesign-b);color:var(--bydesign);}
+
+/* WHAT'S HAPPENING */
+.what-box{background:var(--bg-card2);border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:18px;}
+.what-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;}
+.what-body{font-size:14.5px;color:var(--text-mid);line-height:1.75;}
+.what-body strong{color:var(--text-dark);font-weight:600;}
+
+/* FIX STEPS */
+.fix-box{background:var(--yes-bg);border:1.5px solid var(--yes-b);border-radius:12px;padding:16px 18px;margin-bottom:18px;}
+.fix-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--yes-t);margin-bottom:10px;}
+.fix-steps{list-style:none;display:grid;gap:8px;}
+.fix-step{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:var(--yes-t);line-height:1.65;}
+.fix-step strong{font-weight:600;}
+.step-num{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#fff;background:var(--yes-b);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+
+/* LINKS */
+.links-box{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:18px;}
+.links-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-light);padding:12px 16px;background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.link-item{display:flex;align-items:center;gap:12px;padding:11px 16px;text-decoration:none;color:var(--text-dark);font-size:14px;transition:all .18s;border-bottom:1px solid var(--border);}
+.link-item:last-child{border-bottom:none;}
+.link-item:hover{background:var(--el-light);color:var(--electric);}
+.link-section{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--electric);flex-shrink:0;min-width:44px;}
+.link-arrow{margin-left:auto;color:var(--electric);opacity:.45;font-size:13px;flex-shrink:0;}
+
+/* TOOL LINKS */
+.tool-link-item{display:flex;align-items:center;gap:12px;padding:11px 16px;text-decoration:none;color:var(--text-dark);font-size:14px;transition:all .18s;border-bottom:1px solid var(--border);background:rgba(0,119,204,.04);}
+.tool-link-item:last-child{border-bottom:none;}
+.tool-link-item:hover{background:var(--el-light);color:var(--electric);}
+.tool-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--electric);padding:2px 8px;border-radius:100px;flex-shrink:0;}
+
+.divider{height:1px;background:var(--border);margin:18px 0;}
+
+/* RESTART */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-restart{flex:1;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text-mid);background:none;border:1.5px solid var(--border);border-radius:10px;padding:11px 18px;cursor:pointer;transition:all .18s;text-align:center;min-width:140px;}
+.btn-restart:hover{border-color:var(--electric);color:var(--electric);}
+
+.tool-footer{text-align:center;margin-top:18px;font-size:12px;color:var(--text-light);}
+.tool-footer a{color:var(--electric);text-decoration:none;}
+
+@media(max-width:580px){.card,.result-card{padding:20px 16px 18px;}.wrapper{padding:20px 12px 40px;}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<div class="hdr">
+  <div class="brand">zigbee.com.au</div>
+  <h1 class="ttl">Virtual<br><span>Technician</span></h1>
+  <p class="sub">Describe your symptom and we'll diagnose the root cause — with a step-by-step fix, just like a professional IoT installer would give you.</p>
+</div>
+
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-meta">
+    <span class="prog-label" id="progLabel">Select Symptom</span>
+    <span class="prog-count" id="progCount"></span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div id="main"></div>
+
+<div class="tool-footer">Built for beginners by <a href="https://zigbee.com.au">zigbee.com.au</a> — your Zigbee smart home guide.</div>
+</div>
+
+<script>
+// ── DIAGNOSES ──
+const DIAG = {
+
+A:{
+  name:'Wrong Pairing Mode',
+  badge:'quick',badgeLabel:'⚡ Quick Fix',
+  what:`Most Zigbee devices need to be held in pairing mode at the <strong>exact moment</strong> the hub is actively searching. Many beginners open the app, start the search, then try to trigger the device — but the search window has already closed before they're ready.`,
+  steps:[
+    'Open your hub app and start a new device search — have the device in your hand before you do this',
+    'Immediately trigger pairing on the device (usually hold a button 5–10 seconds until the LED flashes rapidly)',
+    'Keep the device within 1 metre of the hub during the entire pairing process',
+    'If it still fails, factory reset the device first — usually hold the button for 10+ seconds until the LED flashes a different pattern — then try again',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 2 — Pair Your First Device',url:'https://zigbee.com.au/build/step-2-pair-first-device'},
+    {type:'article',section:'BUILD',label:'Installation Guide by Device Type',url:'https://zigbee.com.au/build/installation-guide-by-device-type'},
+    {type:'article',section:'FIX',label:'Pairing troubleshooting FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+B:{
+  name:'Coordinator Overload',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Your coordinator (hub) has a limit on how many devices can connect <strong>directly</strong> to it — typically 15–32 direct connections. When this table is full, new devices appear briefly in the app then get rejected. The fix isn't a bigger hub — it's adding routers so devices route through them instead of directly to the coordinator.`,
+  steps:[
+    'Add a mains-powered router device (smart plug) near your hub and pair it first',
+    'Try pairing the new device near that router — not the hub — so it joins via the router',
+    'In Zigbee2MQTT, check Settings → Coordinator info to see your direct connection count',
+    'Long term: aim for no more than 10–15 devices connecting directly to the coordinator',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How Many Devices Can a Zigbee Network Handle?',url:'https://zigbee.com.au/plan/how-many-devices'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+C:{
+  name:'Zigbee Version Mismatch',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Some hubs — particularly the <strong>Philips Hue Bridge</strong> and <strong>IKEA Dirigera</strong> — are designed to work primarily within their own ecosystem. They use Zigbee but only pair with approved or certified devices. A third-party device may not be on their approved list, even if it's fully Zigbee 3.0 compliant.`,
+  steps:[
+    'Check whether your device is certified for your specific hub on the manufacturer\'s website',
+    'If not certified, the only solution is a more open hub — Aqara M2, Sonoff iHost, or Home Assistant all pair with virtually any Zigbee device',
+    'If you want to mix brands freely long-term, Zigbee2MQTT with Home Assistant supports the widest range of devices of any platform',
+    'Do not factory reset your working devices unnecessarily — the issue is hub compatibility, not the device',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'Zigbee Devices Explained',url:'https://zigbee.com.au/learn/zigbee-devices-explained'},
+    {type:'article',section:'LEARN',label:'Zigbee 3.0 — What It Means',url:'https://zigbee.com.au/learn/zigbee-3'},
+    {type:'article',section:'PLAN',label:'How to Choose the Right Zigbee Hub for Your Home',url:'https://zigbee.com.au/plan/choose-zigbee-hub'},
+    {type:'article',section:'FIX',label:'Hub compatibility FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+D:{
+  name:'Frequency Overpowering',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Your Zigbee hub and your WiFi router are operating on <strong>overlapping frequencies</strong> in the 2.4GHz band. WiFi is a much more powerful signal than Zigbee — when they overlap, WiFi drowns out the Zigbee pairing handshake entirely. This can make pairing impossible even when the device is sitting right next to the hub.`,
+  steps:[
+    'Check what 2.4GHz channel your WiFi router is on — see our Channel Optimiser for step-by-step instructions on finding this',
+    'Run the Channel Optimiser to find the best non-overlapping Zigbee channel for your specific WiFi setup',
+    'Change your Zigbee channel in your hub settings — instructions are included in the Channel Optimiser results page',
+    'Try pairing again after the channel change — this fixes the issue permanently',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'Zigbee Channels and Frequency',url:'https://zigbee.com.au/learn/zigbee-channels-frequency'},
+    {type:'article',section:'PLAN',label:'Choosing the Best Zigbee Channel',url:'https://zigbee.com.au/plan/choosing-zigbee-channel'},
+    {type:'tool',label:'Zigbee Channel Optimiser',url:'https://zigbee.com.au/tools/channel-optimiser'},
+  ]
+},
+
+E:{
+  name:'Thin Mesh at Pairing',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Zigbee devices must pair within <strong>direct radio range</strong> of either the hub or a router. If you're trying to pair a device in a far room with no routers in between, the device cannot complete the join handshake — even if it will eventually work fine through the mesh once paired nearby first.`,
+  steps:[
+    'Temporarily bring the device within 1 metre of the hub to complete the initial pairing',
+    'Once successfully paired, move it to its intended location — it will automatically find its route through the mesh',
+    'If the device\'s intended location is permanently out of direct hub range, add a smart plug (router) between the hub and that location',
+    'Pair the router device first, then pair the end device near the router',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'article',section:'BUILD',label:'Step 2 — Pair Your First Device',url:'https://zigbee.com.au/build/step-2-pair-first-device'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+F:{
+  name:'Residual Binding',
+  badge:'quick',badgeLabel:'⚡ Quick Fix',
+  what:`Zigbee devices <strong>remember the last network they joined</strong>. If a device was previously paired to a different hub — or the same hub after a reset — it needs a full factory reset before it can join a new network. Simply putting it in pairing mode won't work because it's still trying to reconnect to its old network.`,
+  steps:[
+    'Factory reset the device: hold the pairing button for 10+ seconds until the LED flashes a distinctly different pattern (usually rapid flashing)',
+    'For smart bulbs: turn the power off and on rapidly 5–6 times, or use a Zigbee remote control to reset',
+    'Once reset, immediately start the pairing process on your hub — don\'t wait more than 30 seconds',
+    'If the device still won\'t pair after a factory reset, try the reset process once more — some devices need two resets',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Installation Guide by Device Type',url:'https://zigbee.com.au/build/installation-guide-by-device-type'},
+    {type:'article',section:'BUILD',label:'Step 2 — Pair Your First Device',url:'https://zigbee.com.au/build/step-2-pair-first-device'},
+    {type:'article',section:'FIX',label:'Factory reset guides and FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+G:{
+  name:'Firmware Pairing Break',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Some hub firmware updates introduce bugs that affect the pairing process — this is a known issue across several platforms after major version updates. If pairing worked perfectly before the update and broke immediately after, firmware is the most likely cause.`,
+  steps:[
+    'Check the hub manufacturer\'s community forum or release notes for known pairing issues in the latest firmware version',
+    'If a bug is confirmed, check whether a patch version is available and update to it',
+    'As a workaround on Home Assistant, try switching between ZHA and Zigbee2MQTT — one may be unaffected by the bug',
+    'If no fix is available, roll back the firmware if your hub supports it — instructions vary by hub',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'article',section:'FIX',label:'Firmware troubleshooting FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+H:{
+  name:'The Sticky Parent Problem',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Zigbee devices lock onto a "parent" — either the hub or a router — when they first join the network. If that parent later becomes weaker or a better option appears nearby, the device <strong>stubbornly stays connected to its original parent</strong> even when a much better route exists. This is one of the most common and frustrating Zigbee issues, especially on growing networks.`,
+  steps:[
+    'The cleanest fix: remove the device from the network and re-pair it — it will select the best available parent fresh',
+    'In Zigbee2MQTT, use the Re-join button on the device; in ZHA go to the device page and select Reconfigure',
+    'Some hubs automatically re-optimise routes over 24–48 hours — try leaving the network running overnight before re-pairing',
+    'Long term: ensure enough routers are distributed so no single router becomes an obvious bottleneck that every device tries to use',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'article',section:'PLAN',label:'Common Planning Mistakes',url:'https://zigbee.com.au/plan/common-planning-mistakes'},
+    {type:'article',section:'FIX',label:'Mesh routing FAQ and articles',url:'https://zigbee.com.au/fix'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+I:{
+  name:'Thin Mesh — Single Device',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`This device is at the <strong>edge of your mesh</strong> — it can just barely reach its nearest router or the hub, and any signal variation or interference causes it to drop off. The mesh path to this specific device is too thin to be reliable.`,
+  steps:[
+    'Identify the nearest mains-powered device between the hub and the dropping device — this is likely its current parent',
+    'Add a mains-powered smart plug (router) between the hub and the problematic device\'s location',
+    'Place the new router through a doorway rather than through a wall where possible — signal travels much further through open space',
+    'After adding the router, re-pair the dropping device so it selects the new stronger path',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+J:{
+  name:'Battery Depletion',
+  badge:'quick',badgeLabel:'⚡ Quick Fix',
+  what:`Battery-powered Zigbee devices are designed to <strong>drop off the network</strong> when the battery voltage falls below a safe threshold — this protects against sending corrupted data. Most sensors use CR2032 or AA batteries that last 6–18 months depending on reporting frequency and temperature.`,
+  steps:[
+    'Replace the battery with a fresh one from a reputable brand — avoid cheap no-name batteries as they often have lower actual capacity',
+    'After replacing, the device should reconnect to the network within a few minutes automatically',
+    'If it doesn\'t reconnect, press the pairing button once (do not hold — holding will factory reset it)',
+    'Check your hub app for a battery level percentage indicator — set up a low battery alert if your hub supports it',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 4 — Add Sensors and Battery Devices',url:'https://zigbee.com.au/build/step-4-add-sensors'},
+    {type:'article',section:'BUILD',label:'Step 6 — Monthly Maintenance Routine',url:'https://zigbee.com.au/build/step-6-maintenance'},
+    {type:'article',section:'FIX',label:'Battery device FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+K:{
+  name:'Thin Mesh Backbone',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Your network has too many battery-powered devices and <strong>not enough mains-powered routers</strong>. Battery devices are end devices — they don't route traffic for other devices. A network of mostly sensors has no reliable mesh backbone, so any signal variation causes widespread dropouts across the whole network.`,
+  steps:[
+    'Add at least one mains-powered smart plug per room — these act as permanent always-on routers',
+    'Aim for a ratio of at least 1 router for every 5–7 battery-powered devices',
+    'Place routers in hallways and central areas — not just in convenient corner power outlets',
+    'After adding routers, allow 24–48 hours for the mesh to re-optimise and devices to re-route through the new routers',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'PLAN',label:'How Many Devices Can a Zigbee Network Handle?',url:'https://zigbee.com.au/plan/how-many-devices'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+L:{
+  name:'Coordinator Table Full',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Every Zigbee coordinator has a hard limit on how many devices can connect <strong>directly</strong> to it — typically 15–32. When this table fills up, devices on the edge get evicted and go offline. This is different from Thin Mesh — you may have routers, but too many devices are still bypassing them and trying to connect directly to the hub.`,
+  steps:[
+    'In Zigbee2MQTT, check Settings → Coordinator info to see your current direct connection count',
+    'Add routers strategically between groups of devices and the hub to offload direct connections',
+    'Re-pair devices that are physically close to routers — they\'ll naturally route through the router instead of the hub',
+    'If you have 50+ devices, consider upgrading to a coordinator with a larger device table (e.g. Silicon Labs EFR32 based coordinator)',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How Many Devices Can a Zigbee Network Handle?',url:'https://zigbee.com.au/plan/how-many-devices'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+  ]
+},
+
+M:{
+  name:'Cloud Latency',
+  badge:'bydesign',badgeLabel:'ℹ️ By Design',
+  what:`Amazon Echo, Samsung SmartThings and other cloud-dependent hubs route <strong>every command through the manufacturer\'s servers</strong> — even when you\'re at home. Your command travels: phone → internet → Amazon or Samsung server → back to your home → device. This round trip adds 300ms to 2 seconds of latency. It\'s not a fault — it\'s a fundamental limitation of cloud architecture.`,
+  steps:[
+    'Accept it — for most everyday uses, a 1 second delay is not practically noticeable',
+    'Use local Alexa routines for faster response on common actions — some commands can be processed on-device',
+    'Avoid automations that depend on precise timing through cloud hubs — they will always have variable latency',
+    'If low latency matters to you, consider migrating to a local hub (Aqara M2, Sonoff iHost, or Home Assistant) where commands never leave your home network',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'How Zigbee Devices Communicate',url:'https://zigbee.com.au/learn/how-zigbee-devices-communicate'},
+    {type:'article',section:'PLAN',label:'How to Choose the Right Zigbee Hub for Your Home',url:'https://zigbee.com.au/plan/choose-zigbee-hub'},
+    {type:'article',section:'CREATE',label:'Getting started with automations',url:'https://zigbee.com.au/create'},
+    {type:'tool',label:'Smart Home Starter Quiz',url:'https://zigbee.com.au/tools/starter-quiz'},
+  ]
+},
+
+N:{
+  name:'Coordinator CPU Overload',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Running a Zigbee coordinator on a <strong>shared computer or NAS</strong> means the Zigbee software competes for CPU and memory with other processes. When the system is busy, Zigbee command processing slows down noticeably. This is especially common with Home Assistant on older Raspberry Pi models or shared NAS devices.`,
+  steps:[
+    'Check CPU and memory usage on your host device during the slow periods — look for sustained CPU usage above 80%',
+    'If possible, move Home Assistant to dedicated hardware — the Home Assistant Green or Yellow are purpose-built for this use case',
+    'If using Raspberry Pi, ensure you\'re using a Pi 4 with at least 4GB RAM for a network of 30+ devices',
+    'Reduce the number of add-ons, integrations and automations running simultaneously to lower CPU load',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How to Choose the Right Zigbee Hub for Your Home',url:'https://zigbee.com.au/plan/choose-zigbee-hub'},
+    {type:'article',section:'BUILD',label:'Step 1 — Set Up Your Hub',url:'https://zigbee.com.au/build/step-1-set-up-hub'},
+    {type:'article',section:'FIX',label:'Hub performance FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+O:{
+  name:'Too Many Hops',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Every hop a Zigbee signal takes through a router <strong>adds latency</strong>. A device 3–4 hops from the hub can have 200–400ms of network latency before the command even reaches the coordinator. This is called a "long chain" and forms naturally when routers are spaced too far apart.`,
+  steps:[
+    'In Zigbee2MQTT, use the built-in network map to visualise your current routing topology and identify long chains',
+    'Look for any device that shows 3 or more hops to the coordinator — these are your problem paths',
+    'Add routers between these long-chain devices and the hub to shorten the path',
+    'Re-pair devices after adding routers so they select the shorter new path',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'article',section:'FIX',label:'Mesh routing and latency FAQ',url:'https://zigbee.com.au/fix'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+P:{
+  name:'Mesh Congestion',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`With 30+ devices and insufficient routers, your mesh carries <strong>more radio traffic than it can handle efficiently</strong>. Every device reporting state, every command, every automation fires through the same limited 2.4GHz bandwidth. The mesh queues commands and latency climbs — especially during busy periods.`,
+  steps:[
+    'Calculate your router-to-device ratio — aim for 1 mains-powered router per 6–8 devices',
+    'Add routers strategically to distribute traffic load across the mesh rather than funnelling it all through one or two routers',
+    'Review your device reporting rates — sensors reporting every 10 seconds are dramatically more demanding than every 60 seconds',
+    'In Zigbee2MQTT, use the network map to identify congested nodes — any router with 8+ devices routing through it is a bottleneck',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How Many Devices Can a Zigbee Network Handle?',url:'https://zigbee.com.au/plan/how-many-devices'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+Q:{
+  name:'WiFi Peak Interference',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`If your Zigbee channel overlaps with your WiFi channel, interference <strong>spikes when WiFi usage is highest</strong> — typically evenings when streaming, gaming and video calls compete for 2.4GHz bandwidth. This creates intermittent Zigbee lag that follows your household\'s WiFi usage pattern almost exactly.`,
+  steps:[
+    'Note when the lag happens and compare to household WiFi usage — if it peaks in the evenings, this is almost certainly the cause',
+    'Run the Channel Optimiser to check for overlap between your WiFi and Zigbee channels',
+    'Change your Zigbee channel to one with no WiFi overlap — instructions are included in the Channel Optimiser results',
+    'As a bonus: switch heavy WiFi devices (streaming, gaming consoles) to 5GHz to reduce 2.4GHz congestion',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'Zigbee Channels and Frequency',url:'https://zigbee.com.au/learn/zigbee-channels-frequency'},
+    {type:'article',section:'PLAN',label:'Choosing the Best Zigbee Channel',url:'https://zigbee.com.au/plan/choosing-zigbee-channel'},
+    {type:'tool',label:'Zigbee Channel Optimiser',url:'https://zigbee.com.au/tools/channel-optimiser'},
+  ]
+},
+
+R:{
+  name:'IP / Network Change',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`When you change your internet router or ISP, your home network gets new IP addresses. If your Zigbee hub was set to a static IP or your new router assigned it a different address, <strong>the hub loses its connection</strong> and appears offline — even though the Zigbee radio itself is working perfectly.`,
+  steps:[
+    'Find your hub\'s new IP address via your router\'s admin page — usually accessible at 192.168.1.1 or 192.168.0.1',
+    'Access the hub at its new address and verify it\'s online and the Zigbee radio is running',
+    'Set a DHCP reservation in your router admin so the hub always receives the same IP address in future',
+    'Also run the Channel Optimiser — new routers often default to different WiFi channels which can cause Zigbee interference',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 1 — Set Up Your Hub',url:'https://zigbee.com.au/build/step-1-set-up-hub'},
+    {type:'article',section:'FIX',label:'Hub connectivity FAQ',url:'https://zigbee.com.au/fix'},
+    {type:'tool',label:'Zigbee Channel Optimiser',url:'https://zigbee.com.au/tools/channel-optimiser'},
+  ]
+},
+
+S:{
+  name:'Mesh Still Forming',
+  badge:'quick',badgeLabel:'⚡ Quick Fix',
+  what:`Zigbee meshes are <strong>self-healing and self-optimising</strong> — but this process takes time. After adding many devices at once, the network undergoes a period of route discovery and optimisation that causes temporary instability. This is completely normal behaviour and not a fault.`,
+  steps:[
+    'Leave the network running undisturbed for 24–48 hours — do not add or remove devices during this period',
+    'Keep all mains-powered devices plugged in throughout — switching them off interrupts route formation',
+    'Avoid triggering lots of automations or commands during the settling period',
+    'After 48 hours, if issues persist, then investigate further using this tool',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'The Zigbee Mesh Network — How It Works',url:'https://zigbee.com.au/learn/zigbee-mesh-network'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+  ]
+},
+
+T:{
+  name:'Asymmetric Hub Placement',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Moving the hub to a corner or one end of the home means <strong>all devices on the far side are now much further away</strong>. Devices that previously had one hop now need two or three, and some may be out of range entirely. The hub's physical location is the single biggest factor in overall network coverage.`,
+  steps:[
+    'Move the hub back toward the centre of the home if possible — even a few metres makes a significant difference',
+    'If the hub must stay at one end (because that\'s where your internet router is), add a mains-powered router in the centre of the home to re-bridge coverage',
+    'Re-pair any devices that went offline after the hub move so they select the best available route',
+    'Use the Mesh Estimator to calculate how many routers you need for your hub\'s current position',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'PLAN',label:'How to Plan and Map Your Zigbee Network Before You Install',url:'https://zigbee.com.au/plan/plan-and-map-network'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+U:{
+  name:'Orphaned Routes',
+  badge:'quick',badgeLabel:'⚡ Quick Fix',
+  what:`When you remove a device that other devices were <strong>routing through</strong>, those downstream devices lose their path to the hub. They\'ll eventually re-route themselves, but this can take hours and causes dropouts in the meantime. A network heal speeds this up dramatically.`,
+  steps:[
+    'Perform a network heal: in Zigbee2MQTT click "Re-join all"; in ZHA go to Configuration → Network → Heal Network',
+    'If your hub doesn\'t have a heal function, restart the hub — this triggers automatic route re-discovery on all devices',
+    'Wait 30–60 minutes after the heal for routes to stabilise before drawing conclusions',
+    'Future tip: before removing a routing device, add a replacement router in the same area first so other devices have an alternative path ready',
+  ],
+  links:[
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'article',section:'BUILD',label:'Step 6 — Monthly Maintenance Routine',url:'https://zigbee.com.au/build/step-6-maintenance'},
+    {type:'article',section:'FIX',label:'Network healing FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+V:{
+  name:'Material Attenuation',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Brick and concrete <strong>reduce Zigbee signal by 60–90% per wall</strong>. In a brick or concrete home, you cannot rely on signal passing through multiple walls — every room separated by a heavy wall needs its own router, or a router placed in the doorway between rooms where signal can travel through the opening.`,
+  steps:[
+    'Place a mains-powered smart plug (router) in or directly adjacent to the dead zone room',
+    'Route through doorways — a plug in the hallway just outside the room often outperforms one inside the room because signal travels through the open doorway',
+    'For concrete homes, plan on one router per room as a baseline',
+    'Use the Mesh Estimator with Brick or Concrete selected to calculate exactly how many routers your home needs',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'PLAN',label:'Common Planning Mistakes',url:'https://zigbee.com.au/plan/common-planning-mistakes'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+W:{
+  name:'Garage Wall Blockage',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`The internal wall between your house and garage is almost always the <strong>thickest and most signal-resistant wall in the home</strong> — often double brick, concrete block, or fire-rated construction. Zigbee signal cannot reliably pass through this wall without a dedicated router on the garage side.`,
+  steps:[
+    'Place a mains-powered smart plug (router) just inside the garage — within 2 metres of the internal door to the house',
+    'Ensure the plug is appropriate for garage conditions — temperature fluctuations and humidity vary widely in garages',
+    'Once the router is in place, pair garage devices near that router rather than the hub so they join via the garage router',
+    'The garage router will relay signal back through the wall to the main house network automatically',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+X:{
+  name:'Outdoor Extension Needed',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Outdoor Zigbee coverage requires a <strong>dedicated weatherproof router device</strong>. Standard indoor devices cannot be used outside due to moisture and temperature extremes. The external house wall also significantly attenuates the indoor signal — so you can\'t rely on indoor devices covering outdoor areas.`,
+  steps:[
+    'Purchase an IP65-rated outdoor Zigbee smart plug or dedicated outdoor router device',
+    'Place it just inside or just outside the external wall — within reach of both the indoor mesh and outdoor devices',
+    'For distances over 10m from the house, you may need two outdoor routers chained together',
+    'Ensure the outdoor router has permanent power — do not put it on a switched outdoor circuit or it will drop out of the mesh when switched off',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Practical Build Guides',url:'https://zigbee.com.au/build/practical-guides'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+Y:{
+  name:'No Floor-Crossing Router',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`Zigbee signal crossing between floors loses significant strength passing through the floor structure — particularly <strong>concrete floors</strong>. Without a router near the staircase on the upper floor, devices upstairs must connect directly through the ceiling to the hub below, often with unreliable and intermittent results.`,
+  steps:[
+    'Place a mains-powered router at the top of the staircase on the upper floor — this single placement has the highest impact of any router in a two-storey home',
+    'Once in place, re-pair upper floor devices near this router so they route through it rather than directly down to the hub',
+    'For homes with concrete floors between levels, add a second router mid-upper-floor as well',
+    'Check that the staircase router itself has a strong connection to the ground floor network — it may need another router at the bottom of the stairs too',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'Where to Place Zigbee Devices for Best Coverage',url:'https://zigbee.com.au/plan/device-placement'},
+    {type:'article',section:'BUILD',label:'Step 3 — Add Your Routers',url:'https://zigbee.com.au/build/step-3-add-routers'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+Z:{
+  name:'Bulb-Only Mesh',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Smart bulbs act as Zigbee routers — but <strong>only when powered on</strong>. When a light is switched off at the wall switch, the bulb loses mains power entirely and drops out of the mesh, taking any devices that were routing through it offline too. A network built primarily on bulbs as routers is fundamentally unreliable.`,
+  steps:[
+    'Never switch smart bulbs off at the wall switch — the switch must always stay on. Use the smart bulb app or automations to control brightness and on/off state instead',
+    'Add dedicated mains-powered smart plugs as your primary routers — these are always powered and never drop out',
+    'If wall switches must be used, replace them with smart switches that keep constant power to the bulb while controlling the circuit digitally',
+    'Aim for at least 2–3 dedicated plug-based routers before relying on bulbs for any mesh routing',
+  ],
+  links:[
+    {type:'article',section:'LEARN',label:'Zigbee Devices Explained',url:'https://zigbee.com.au/learn/zigbee-devices-explained'},
+    {type:'article',section:'PLAN',label:'Common Planning Mistakes',url:'https://zigbee.com.au/plan/common-planning-mistakes'},
+    {type:'article',section:'BUILD',label:'Installation Guide by Device Type',url:'https://zigbee.com.au/build/installation-guide-by-device-type'},
+  ]
+},
+
+AA:{
+  name:'Hub Hardware Instability',
+  badge:'hw',badgeLabel:'⚙️ Hardware Change',
+  what:`A hub that reboots randomly <strong>corrupts the Zigbee network state</strong>. Every time the coordinator restarts, devices lose their routing table and must re-discover paths from scratch. Frequent reboots prevent the mesh from ever stabilising — the network is always in a partially re-forming state.`,
+  steps:[
+    'Check the power supply first — an underpowered USB supply is the most common cause of random reboots on Raspberry Pi. Use only the official power supply',
+    'Check for overheating — ensure the hub enclosure has adequate ventilation and is not in a confined space',
+    'Check hub logs for crash reasons: in Home Assistant go to Settings → System → Logs',
+    'If running on shared hardware (NAS, PC), consider migrating to dedicated hub hardware such as Home Assistant Green',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How to Choose the Right Zigbee Hub for Your Home',url:'https://zigbee.com.au/plan/choose-zigbee-hub'},
+    {type:'article',section:'BUILD',label:'Step 1 — Set Up Your Hub',url:'https://zigbee.com.au/build/step-1-set-up-hub'},
+    {type:'article',section:'FIX',label:'Hub stability and hardware FAQ',url:'https://zigbee.com.au/fix'},
+  ]
+},
+
+AB:{
+  name:'Organic Growth Chaos',
+  badge:'tech',badgeLabel:'🔧 Technical',
+  what:`Networks that grow without a plan develop <strong>unpredictable and inefficient mesh topologies</strong>. Devices route through whatever path was available when they joined, creating long chains, overloaded routers, and devices stubbornly holding onto poor routes. The fix isn\'t just adding more devices — it\'s a deliberate network redesign.`,
+  steps:[
+    'Use your hub\'s network map to visualise current routing — Zigbee2MQTT has an excellent built-in topology map',
+    'Identify overloaded routers: any router with 8+ devices routing through it is a bottleneck',
+    'Add routers to relieve overloaded nodes and shorten long chains',
+    'Perform a full network heal after adding routers, then allow 24–48 hours for routes to re-optimise',
+    'Use our planning articles before your next expansion to avoid repeating the pattern',
+  ],
+  links:[
+    {type:'article',section:'PLAN',label:'How to Plan and Map Your Zigbee Network Before You Install',url:'https://zigbee.com.au/plan/plan-and-map-network'},
+    {type:'article',section:'PLAN',label:'Common Planning Mistakes',url:'https://zigbee.com.au/plan/common-planning-mistakes'},
+    {type:'article',section:'BUILD',label:'Step 5 — Optimise and Check Your Network',url:'https://zigbee.com.au/build/step-5-optimise'},
+    {type:'tool',label:'Zigbee Channel Optimiser',url:'https://zigbee.com.au/tools/channel-optimiser'},
+    {type:'tool',label:'Mesh Signal Strength Estimator',url:'https://zigbee.com.au/tools/mesh-estimator'},
+  ]
+},
+
+};
+
+// ── QUESTION TREES ──
+// Each node: {q, hint, opts:[{label,sub?,next}]}
+// next = diagId string OR nodeId string
+
+const TREES = {
+
+pairing:{
+  q1:{q:'Is this device brand new, or did it previously work on a network?',hint:'This tells us whether we\'re looking at a first-time pairing issue or a re-pairing issue.',
+    opts:[
+      {label:'Brand new — never been paired',em:'📦',next:'pairing_new'},
+      {label:'It worked before on this or another hub',em:'🔄',next:'pairing_old'},
+    ]},
+  pairing_new:{q:'How close is the device to your hub right now?',hint:'Distance during pairing is critical — the initial handshake is more demanding than normal operation.',
+    opts:[
+      {label:'Within 1 metre of the hub',em:'📍',next:'pairing_close'},
+      {label:'More than 2 metres away',em:'📏',diag:'E'},
+    ]},
+  pairing_close:{q:'Does the device appear briefly in the app then immediately disappear?',hint:'Briefly appearing then vanishing is a different problem to not appearing at all.',
+    opts:[
+      {label:'Yes — appears then vanishes within seconds',em:'👻',next:'pairing_vanish'},
+      {label:'No — doesn\'t appear at all',em:'❌',next:'pairing_noshow'},
+    ]},
+  pairing_vanish:{q:'How many devices are currently on your network?',hint:'A full coordinator table causes this exact symptom.',
+    opts:[
+      {label:'Under 20 devices',em:'🟢',diag:'A'},
+      {label:'20 or more devices',em:'🔴',diag:'B'},
+    ]},
+  pairing_noshow:{q:'Which hub are you trying to pair with?',hint:'Some hubs only accept approved devices from their own ecosystem.',
+    opts:[
+      {label:'Philips Hue Bridge',em:'💡',diag:'C'},
+      {label:'IKEA Dirigera',em:'🟡',diag:'C'},
+      {label:'Amazon Echo, Aqara, Sonoff, Home Assistant or other',em:'📡',diag:'D'},
+    ]},
+  pairing_old:{q:'Did this device previously pair with a different hub or app?',hint:'Devices remember their last network and must be factory reset before joining a new one.',
+    opts:[
+      {label:'Yes — it was on a different hub or brand',em:'🔀',diag:'F'},
+      {label:'No — same hub as before',em:'↩️',next:'pairing_samehub'},
+    ]},
+  pairing_samehub:{q:'Has anything changed recently?',hint:'Think about changes to your WiFi, hub software, or home network.',
+    opts:[
+      {label:'New WiFi router or changed internet provider',em:'📡',diag:'D'},
+      {label:'Updated hub firmware recently',em:'🔧',diag:'G'},
+      {label:'Nothing has changed',em:'🤷',diag:'F'},
+    ]},
+},
+
+dropouts:{
+  q1:{q:'Is it one specific device dropping off, or multiple devices?',hint:'Whether it\'s isolated or widespread narrows down the cause significantly.',
+    opts:[
+      {label:'One specific device',em:'1️⃣',next:'drop_one'},
+      {label:'Multiple devices',em:'🔢',next:'drop_multi'},
+    ]},
+  drop_one:{q:'Is this device battery powered or mains powered?',hint:'Battery and mains devices drop off for very different reasons.',
+    opts:[
+      {label:'Battery powered (sensor, remote, button)',em:'🔋',next:'drop_battery'},
+      {label:'Mains powered (plug, bulb, switch)',em:'🔌',next:'drop_mains'},
+    ]},
+  drop_battery:{q:'How old is the battery in this device?',hint:'Most Zigbee sensors use CR2032 batteries lasting 6–18 months.',
+    opts:[
+      {label:'Less than 6 months old',em:'🟢',next:'drop_battery_new'},
+      {label:'More than 6 months old, or unknown',em:'🔴',diag:'J'},
+    ]},
+  drop_battery_new:{q:'Does this device drop off at a specific time of day, or randomly?',hint:'Time-based dropout suggests a routing problem; random suggests signal edge.',
+    opts:[
+      {label:'Same time each day (e.g. evenings)',em:'🕐',diag:'H'},
+      {label:'Random — no clear pattern',em:'🎲',diag:'I'},
+    ]},
+  drop_mains:{q:'How far is this device from the hub or its nearest router?',hint:'Even mains devices need to be within reliable signal range.',
+    opts:[
+      {label:'Close — within 5 metres',em:'📍',diag:'H'},
+      {label:'Far — more than 5 metres away',em:'📏',diag:'I'},
+    ]},
+  drop_multi:{q:'Did the dropouts start suddenly, or gradually over time?',hint:'Sudden suggests an event triggered it; gradual suggests the network has outgrown its infrastructure.',
+    opts:[
+      {label:'Suddenly — was fine then broke',em:'⚡',next:'drop_sudden'},
+      {label:'Gradually — getting worse over weeks',em:'📉',next:'drop_gradual'},
+    ]},
+  drop_sudden:{q:'Did anything change around the time it started?',hint:'Think about WiFi, hub software, or new devices.',
+    opts:[
+      {label:'New WiFi router or changed internet provider',em:'📡',diag:'D'},
+      {label:'Updated hub firmware',em:'🔧',diag:'G'},
+      {label:'Added many new devices at once',em:'➕',diag:'B'},
+      {label:'Nothing obvious changed',em:'🤷',diag:'D'},
+    ]},
+  drop_gradual:{q:'How many mains-powered devices do you have (plugs, switches, hardwired)?',hint:'Mains devices act as routers. Too few routers means the mesh backbone is thin.',
+    opts:[
+      {label:'Mostly battery devices — fewer than 3 mains',em:'🔋',diag:'K'},
+      {label:'Several mains-powered devices',em:'🔌',diag:'L'},
+    ]},
+},
+
+lag:{
+  q1:{q:'What type of hub are you using?',hint:'Cloud hubs and local hubs have fundamentally different latency characteristics.',
+    opts:[
+      {label:'Amazon Echo (Alexa)',em:'🔶',diag:'M'},
+      {label:'Samsung SmartThings',em:'🔷',diag:'M'},
+      {label:'Local hub — Aqara, Home Assistant, Sonoff iHost, Hubitat, Hue',em:'🏠',next:'lag_local'},
+    ]},
+  lag_local:{q:'Is the delay consistent (always slow) or intermittent (sometimes fine, sometimes slow)?',hint:'Consistent delay suggests a hardware or topology issue; intermittent suggests interference.',
+    opts:[
+      {label:'Consistent — always slow',em:'⏳',next:'lag_consistent'},
+      {label:'Intermittent — sometimes fine',em:'🔀',next:'lag_intermittent'},
+    ]},
+  lag_consistent:{q:'How many devices are on your network?',hint:'Network size affects whether this is a hardware or topology problem.',
+    opts:[
+      {label:'Under 30 devices',em:'🟢',next:'lag_small'},
+      {label:'30 or more devices',em:'🔴',diag:'P'},
+    ]},
+  lag_small:{q:'Is your hub running on a shared computer, NAS, or Raspberry Pi?',hint:'Shared hardware competes for CPU and memory with Zigbee processing.',
+    opts:[
+      {label:'Yes — shared computer, NAS, or old Pi',em:'💻',diag:'N'},
+      {label:'No — dedicated hub hardware',em:'📦',diag:'O'},
+    ]},
+  lag_intermittent:{q:'Does the slow response happen at a specific time of day?',hint:'Evening slowdowns correlate with peak WiFi usage from streaming and gaming.',
+    opts:[
+      {label:'Yes — mostly evenings or specific times',em:'🌙',diag:'Q'},
+      {label:'No — completely random timing',em:'🎲',diag:'O'},
+    ]},
+},
+
+changed:{
+  q1:{q:'What changed around the time things stopped working?',hint:'Be as specific as you can — even small changes can cause network disruption.',
+    opts:[
+      {label:'New WiFi router or changed internet provider',em:'📡',diag:'R'},
+      {label:'Updated hub firmware',em:'🔧',next:'changed_firmware'},
+      {label:'Added many new devices at once',em:'➕',next:'changed_devices'},
+      {label:'Moved the hub to a different location',em:'📦',diag:'T'},
+      {label:'Removed or replaced a device',em:'🗑️',diag:'U'},
+      {label:'Internet went down around that time',em:'🌐',diag:'R'},
+      {label:'Not sure what changed',em:'🤷',diag:'D'},
+    ]},
+  changed_firmware:{q:'Did everything stop working, or just some devices?',hint:'A full outage suggests a different firmware issue than partial device dropout.',
+    opts:[
+      {label:'Everything stopped working at once',em:'🔴',diag:'G'},
+      {label:'Some devices — others still work fine',em:'🟡',diag:'H'},
+    ]},
+  changed_devices:{q:'How long ago did you add the new devices?',hint:'Zigbee networks take 24–48 hours to self-optimise after major additions.',
+    opts:[
+      {label:'Less than 48 hours ago',em:'🕐',diag:'S'},
+      {label:'More than 48 hours ago',em:'📅',diag:'B'},
+    ]},
+},
+
+range:{
+  q1:{q:'Which area has poor or no Zigbee signal?',hint:'Different dead zone types have different solutions.',
+    opts:[
+      {label:'A far room on the same floor',em:'🚪',next:'range_room'},
+      {label:'The garage',em:'🚗',diag:'W'},
+      {label:'Garden, patio, or outdoor area',em:'🌿',diag:'X'},
+      {label:'Upper floor or downstairs',em:'🏘️',next:'range_floor'},
+      {label:'The whole home is patchy',em:'🏠',next:'range_whole'},
+    ]},
+  range_room:{q:'What are the walls in that area mainly made of?',hint:'Wall material is the biggest factor in signal loss per metre.',
+    opts:[
+      {label:'Plasterboard or timber frame',em:'🟢',diag:'I'},
+      {label:'Brick or concrete',em:'🔴',diag:'V'},
+      {label:'Not sure',em:'🤷',diag:'V'},
+    ]},
+  range_floor:{q:'Do you have any mains-powered devices on that floor?',hint:'Mains devices on each floor act as floor-crossing relay points.',
+    opts:[
+      {label:'No — nothing mains-powered on that floor',em:'❌',diag:'Y'},
+      {label:'Yes — a few plugs or switches',em:'✅',diag:'H'},
+    ]},
+  range_whole:{q:'What do most of your router devices consist of?',hint:'What type of device you\'re using as routers matters greatly.',
+    opts:[
+      {label:'Mostly smart bulbs',em:'💡',diag:'Z'},
+      {label:'Mostly smart plugs or hardwired switches',em:'🔌',diag:'T'},
+    ]},
+},
+
+instability:{
+  q1:{q:'How long has your Zigbee network been running?',hint:'Very new networks behave differently to established ones.',
+    opts:[
+      {label:'Less than 48 hours',em:'🕐',diag:'S'},
+      {label:'More than 48 hours',em:'📅',next:'inst_established'},
+    ]},
+  inst_established:{q:'Does your hub itself reboot or lose power randomly?',hint:'An unstable hub prevents the mesh from ever fully forming.',
+    opts:[
+      {label:'Yes — hub reboots or drops off sometimes',em:'🔴',diag:'AA'},
+      {label:'No — hub is stable and always on',em:'🟢',next:'inst_stable'},
+    ]},
+  inst_stable:{q:'Have you ever checked what Zigbee channel your network is on?',hint:'Most beginners never check this — and WiFi interference is very common.',
+    opts:[
+      {label:'Never checked or not sure',em:'❓',diag:'Q'},
+      {label:'Yes — channel has been checked and optimised',em:'✅',next:'inst_channel_ok'},
+    ]},
+  inst_channel_ok:{q:'What is your approximate router-to-device ratio?',hint:'Routers are mains-powered devices like smart plugs. Battery sensors are end devices.',
+    opts:[
+      {label:'Mostly battery devices — fewer than 1 plug per 6 devices',em:'🔋',diag:'K'},
+      {label:'Good mix — roughly 1 mains device per 5–6 battery devices',em:'🔌',next:'inst_goodratio'},
+    ]},
+  inst_goodratio:{q:'How did you build your network?',hint:'Organic networks often develop inefficient routing topologies over time.',
+    opts:[
+      {label:'Added devices over time as I went — no real plan',em:'🌱',diag:'AB'},
+      {label:'Planned it from the start',em:'📋',diag:'H'},
+    ]},
+},
+
+};
+
+// ── STATE ──
+const S={symptom:null,path:null,nodeId:null,history:[],step:0};
+
+const SYMPTOMS=[
+  {id:'pairing',  em:'🔴',title:'Pairing Failures',     desc:'Device won\'t join the network'},
+  {id:'dropouts', em:'🟠',title:'Offline Dropouts',      desc:'Devices keep going offline'},
+  {id:'lag',      em:'🟡',title:'Network Lag',           desc:'Slow or delayed responses'},
+  {id:'changed',  em:'🔵',title:'Stopped After a Change',desc:'Was working, then something changed'},
+  {id:'range',    em:'📡',title:'Weak Range / Dead Zones',desc:'Signal doesn\'t reach part of my home'},
+  {id:'instability',em:'⚡',title:'General Instability', desc:'Random issues, no clear pattern'},
+];
+
+function totalSteps(symptomId){
+  const tree=TREES[symptomId];
+  return Object.keys(tree).length+1;
+}
+
+function setProgress(label,pct){
+  document.getElementById('progLabel').textContent=label;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progCount').textContent=pct<100?`Step ${S.step}`:'Diagnosis found';
+}
+
+// ── RENDER SYMPTOM PICKER ──
+function renderSymptoms(){
+  S.symptom=null;S.path=null;S.nodeId=null;S.history=[];S.step=0;
+  setProgress('Select Your Symptom',0);
+  document.getElementById('progCount').textContent='';
+  document.getElementById('main').innerHTML=`
+  <div class="card">
+    <div class="eyebrow">Step 1 — What is your symptom?</div>
+    <div class="question">What best describes the problem you are experiencing?</div>
+    <div class="q-hint">Choose the symptom that matches most closely — the Virtual Technician will ask follow-up questions to find the exact cause.</div>
+    <div class="sym-grid">
+      ${SYMPTOMS.map(s=>`
+        <button class="sym-btn" onclick="startPath('${s.id}')">
+          <span class="sym-em">${s.em}</span>
+          <span class="sym-title">${s.title}</span>
+          <span class="sym-desc">${s.desc}</span>
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── START A SYMPTOM PATH ──
+function startPath(symptomId){
+  S.symptom=symptomId;S.history=[];S.step=1;
+  const firstNode=Object.keys(TREES[symptomId])[0];
+  renderQuestion(symptomId,firstNode);
+}
+
+// ── RENDER QUESTION ──
+function renderQuestion(symptomId,nodeId){
+  S.nodeId=nodeId;
+  const tree=TREES[symptomId];
+  const node=tree[nodeId];
+  const total=totalSteps(symptomId)+1;
+  S.step++;
+  setProgress(SYMPTOMS.find(s=>s.id===symptomId).title, Math.round((S.step/total)*80));
+
+  document.getElementById('main').innerHTML=`
+  <div class="card">
+    <div class="eyebrow">${SYMPTOMS.find(s=>s.id===symptomId).em} ${SYMPTOMS.find(s=>s.id===symptomId).title}</div>
+    <div class="question">${node.q}</div>
+    ${node.hint?`<div class="q-hint">${node.hint}</div>`:''}
+    <div class="opts">
+      ${node.opts.map((o,i)=>`
+        <button class="opt" onclick="handleOpt('${symptomId}','${nodeId}',${i})">
+          ${o.em?`<span class="opt-em">${o.em}</span>`:''}
+          <span class="opt-txt">
+            ${o.label}
+            ${o.sub?`<span class="opt-sub">${o.sub}</span>`:''}
+          </span>
+        </button>`).join('')}
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="handleBack('${symptomId}')">← Back</button>
+    </div>
+  </div>`;
+}
+
+// ── HANDLE OPTION CLICK ──
+function handleOpt(symptomId,nodeId,optIdx){
+  const tree=TREES[symptomId];
+  const opt=tree[nodeId].opts[optIdx];
+  S.history.push(nodeId);
+  if(opt.diag){
+    renderDiagnosis(opt.diag,symptomId);
+  } else if(opt.next){
+    renderQuestion(symptomId,opt.next);
+  }
+}
+
+// ── HANDLE BACK ──
+function handleBack(symptomId){
+  if(S.history.length===0){ renderSymptoms(); return; }
+  goBack(symptomId);
+}
+
+// ── GO BACK ──
+function goBack(symptomId){
+  if(S.history.length===0){renderSymptoms();return;}
+  const prev=S.history.pop();
+  S.step=Math.max(1,S.step-1);
+  if(prev==='__symptoms__'){renderSymptoms();}
+  else{renderQuestion(symptomId,prev);}
+}
+
+// ── RENDER DIAGNOSIS ──
+function renderDiagnosis(diagId,symptomId){
+  const d=DIAG[diagId];
+  setProgress('Diagnosis Found',100);
+
+  const badgeColors={quick:'quick',tech:'tech',hw:'hw',bydesign:'bydesign'};
+  const articleLinks=d.links.filter(l=>l.type==='article');
+  const toolLinks=d.links.filter(l=>l.type==='tool');
+
+  document.getElementById('main').innerHTML=`
+  <div class="result-card">
+    <div class="diag-header">
+      <div class="diag-found">Diagnosis Found</div>
+      <div class="diag-name">Root Cause: <span>${d.name}</span></div>
+      <div class="badge ${d.badge}">${d.badgeLabel}</div>
+    </div>
+
+    <div class="what-box">
+      <div class="what-title">What's happening</div>
+      <div class="what-body">${d.what}</div>
+    </div>
+
+    <div class="fix-box">
+      <div class="fix-title">✅ The Professional Fix — Step by Step</div>
+      <ol class="fix-steps">
+        ${d.steps.map((step,i)=>`
+          <li class="fix-step">
+            <span class="step-num">${i+1}</span>
+            <span>${step}</span>
+          </li>`).join('')}
+      </ol>
+    </div>
+
+    ${articleLinks.length>0?`
+    <div class="links-box">
+      <div class="links-title">Relevant articles on zigbee.com.au</div>
+      ${articleLinks.map(l=>`
+        <a class="link-item" href="${l.url}" target="_blank" rel="noopener">
+          <span class="link-section">${l.section}</span>
+          <span>${l.label}</span>
+          <span class="link-arrow">→</span>
+        </a>`).join('')}
+    </div>`:''}
+
+    ${toolLinks.length>0?`
+    <div class="links-box" style="margin-top:10px;">
+      <div class="links-title">Helpful tools</div>
+      ${toolLinks.map(l=>`
+        <a class="tool-link-item" href="${l.url}" target="_blank" rel="noopener">
+          <span class="tool-badge">TOOL</span>
+          <span>${l.label}</span>
+          <span class="link-arrow">→</span>
+        </a>`).join('')}
+    </div>`:''}
+
+    <div class="divider"></div>
+    <div class="btn-row">
+      <button class="btn-restart" onclick="startPath('${symptomId}')">← Try another answer</button>
+      <button class="btn-restart" onclick="renderSymptoms()">↺ New symptom</button>
+    </div>
+  </div>`;
+}
+
+// ── INIT ──
+renderSymptoms();
+</script>
+</body>
+</html>
